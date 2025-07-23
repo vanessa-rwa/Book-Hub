@@ -1,0 +1,20 @@
+# Production Environment Variables for Azure
+DEBUG=False
+SECRET_KEY=your-super-secret-key-here-generate-a-new-one
+AZURE_APP_SERVICE_URL=your-app-name.azurewebsites.net
+DATABASE_URL=postgresql://username:password@hostname:port/database_name
+FRONTEND_URL=https://your-frontend-app.azurestaticapps.net
+CORS_ALLOW_ALL_ORIGINS=False
+DJANGO_LOG_LEVEL=INFO
+
+# Azure PostgreSQL Configuration
+DB_NAME=bookhub_db
+DB_USER=bookhub_admin
+DB_PASSWORD=your_secure_password
+DB_HOST=your-server-name.postgres.database.azure.com
+DB_PORT=5432
+
+# Azure Storage (Optional for media files)
+AZURE_STORAGE_ACCOUNT_NAME=your_storage_account
+AZURE_STORAGE_ACCOUNT_KEY=your_storage_key
+AZURE_STORAGE_CONTAINER_NAME=media 

@@ -1,0 +1,64 @@
+# Exclude specific files and directories
+scripts/
+AZURE_DEPLOYMENT_GUIDE.md
+AZURE_PORTAL_DEPLOYMENT.md
+AzureCLI.msi
+DEPLOYMENT_CHECKLIST.md
+full automated deployment.pdf
+INSTALL_AZURE_CLI.md
+LOCAL_DEMO_SETUP.md
+Manual deployment.pdf
+QUICK_AZURE_PORTAL_SETUP.md
+QUICK_START_OPTIONS.md
+RWANDA_AZURE_DEPLOYMENT.md
+
+# Development and IDE files
+.history/
+.lh/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

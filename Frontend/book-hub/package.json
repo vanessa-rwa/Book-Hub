@@ -7,8 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:azure": "vite build --mode production",
     "lint": "eslint .",
-    "test": "jest" 
+    "test": "jest",
     "preview": "vite preview"
   },
   "dependencies": {
