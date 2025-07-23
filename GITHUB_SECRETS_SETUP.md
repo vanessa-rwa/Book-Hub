@@ -28,8 +28,8 @@ Go to: https://github.com/vanessa-rwa/Book-Hub/settings/secrets/actions
 - **Name**: `VITE_API_URL`
 - **Value**: `https://bookhub-backend.azurewebsites.net`
 
-#### **5. AZURE_STATIC_WEB_APPS_API_TOKEN**
-- **Name**: `AZURE_STATIC_WEB_APPS_API_TOKEN`
+#### **5. AZURE_STATIC_WEB_APPS_API_TOKEN_YELLOW_PEBBLE_0A3953C03**
+- **Name**: `AZURE_STATIC_WEB_APPS_API_TOKEN_YELLOW_PEBBLE_0A3953C03`
 - **Value**: [Get from Azure Static Web App → Configuration → Management API token]
 
 ## 🔍 **How to Get Missing Values**
@@ -41,7 +41,7 @@ Go to: https://github.com/vanessa-rwa/Book-Hub/settings/secrets/actions
 4. Open the downloaded file in Notepad
 5. Copy the entire content
 
-### **For AZURE_STATIC_WEB_APPS_API_TOKEN:**
+### **For AZURE_STATIC_WEB_APPS_API_TOKEN_YELLOW_PEBBLE_0A3953C03:**
 1. Go to Azure Portal
 2. Find your Static Web App: `bookhub-frontend`
 3. Go to **"Configuration"**
@@ -59,4 +59,10 @@ Go to: https://github.com/vanessa-rwa/Book-Hub/settings/secrets/actions
 - ✅ Frontend builds without PostCSS errors
 - ✅ Backend deploys with proper Azure credentials
 - ✅ Static Web Apps deploys to correct location
-- ✅ Environment variables are properly set 
+- ✅ Environment variables are properly set
+
+## 🔄 **Workflow Separation**
+
+- **Frontend**: Handled by `azure-static-web-apps-yellow-pebble-0a3953c03.yml` (auto-generated)
+- **Backend**: Handled by `azure-deployment-backend-only.yml` (custom)
+- **Both workflows** will run on push to main branch 
