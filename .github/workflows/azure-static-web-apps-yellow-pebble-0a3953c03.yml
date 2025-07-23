@@ -44,7 +44,8 @@ jobs:
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "Frontend/book-hub" # App source code path
           api_location: "" # Api source code path - optional
-          output_location: "dist" # Built app content directory - optional
+          output_location: "dist" # Built app content directory
+          app_artifact_location: "Frontend/book-hub/dist" # Point to the built artifacts
           skip_app_build: true # Skip build since we already built it
           ###### End of Repository/Build Configurations ######
 
