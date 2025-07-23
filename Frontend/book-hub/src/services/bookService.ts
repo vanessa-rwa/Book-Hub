@@ -1,21 +1,42 @@
 import { Book } from "../types/book";
 
-const API_URL = "http://127.0.0.1:8000/api";
+// Use environment variable or fallback to Azure backend URL
+const API_URL = import.meta.env.VITE_API_URL || "https://bookhub-backend-a0gfbea4h4g0hwak.southafricanorth-01.azurewebsites.net/api";
 
 export const bookService = {
   async getAllBooks(): Promise<Book[]> {
-    const response = await fetch(`${API_URL}/books/`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch books");
+    try {
+      const response = await fetch(`${API_URL}/books/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch books: ${response.status} ${response.statusText}`);
+      }
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching books:', error);
+      throw error;
     }
-    return response.json();
   },
 
   async getBookById(id: number): Promise<Book> {
-    const response = await fetch(`${API_URL}/books/${id}/`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch book");
+    try {
+      const response = await fetch(`${API_URL}/books/${id}/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch book: ${response.status} ${response.statusText}`);
+      }
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching book:', error);
+      throw error;
     }
-    return response.json();
   },
 };
