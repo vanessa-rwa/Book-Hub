@@ -5,18 +5,12 @@ import { BookFilters } from "../components/BookFilters";
 import { BookGrid } from "../components/BookGrid";
 import { BookDetails } from "../components/BookDetails";
 import { BookProvider } from "../contexts/BookContext";
-import { useBooks } from "../contexts/BookContext";
-
-import { WifiOff, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { mockBooks } from "../data/mockBooks";
 
 const BookHubContent: React.FC = () => {
   const [selectedBookId, setSelectedBookId] = useState<number | null>(null);
   const [selectedBook, setSelectedBook] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [showFallbackAlert, setShowFallbackAlert] = useState(true);
-  const { state } = useBooks();
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -29,30 +23,26 @@ const BookHubContent: React.FC = () => {
       try {
         console.log("🔗 Fetching book details for ID:", selectedBookId);
         
-        if (state.isUsingFallback) {
-          // Use mock data for book details
+        // Try to fetch from API first
+        const response = await fetch(
+          `https://bookhub-backend-a0gfbea4h4g0hwak.southafricanorth-01.azurewebsites.net/api/books/${selectedBookId}/`
+        );
+        
+        console.log("📊 Book detail response status:", response.status);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log("✅ Book detail response:", data);
+          setSelectedBook(data);
+        } else {
+          // Fallback to mock data if API fails
           const mockBook = mockBooks.find(book => book.id === selectedBookId);
           if (mockBook) {
-            console.log("🔄 Using mock book data:", mockBook);
+            console.log("🔄 Falling back to mock book data");
             setSelectedBook(mockBook);
           } else {
             throw new Error("Book not found in mock data");
           }
-        } else {
-          // Fetch from API
-          const response = await fetch(
-            `https://bookhub-backend-a0gfbea4h4g0hwak.southafricanorth-01.azurewebsites.net/api/books/${selectedBookId}/`
-          );
-          
-          console.log("📊 Book detail response status:", response.status);
-          
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-          
-          const data = await response.json();
-          console.log("✅ Book detail response:", data);
-          setSelectedBook(data);
         }
       } catch (error) {
         console.error("❌ Error fetching book:", error);
@@ -71,7 +61,7 @@ const BookHubContent: React.FC = () => {
     };
 
     fetchBook();
-  }, [selectedBookId, state.isUsingFallback]);
+  }, [selectedBookId]);
 
   const handleBookSelect = (bookId: number) => {
     console.log("📖 Book selected:", bookId);
@@ -86,28 +76,7 @@ const BookHubContent: React.FC = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Fallback Alert */}
-      {state.isUsingFallback && showFallbackAlert && (
-        <div className="mx-4 mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <WifiOff className="h-4 w-4 text-amber-600" />
-              <span className="text-amber-800">
-                Currently using offline mode. Some features may be limited. 
-                The app will automatically reconnect when the backend is available.
-              </span>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowFallbackAlert(false)}
-              className="text-amber-600 hover:text-amber-800"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+
 
       {selectedBook ? (
         <main className="container mx-auto px-4 py-8">

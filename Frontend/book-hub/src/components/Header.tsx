@@ -1,11 +1,9 @@
 
 import React from "react";
-import { BookOpen, Wifi, WifiOff } from "lucide-react";
-import { useBooks } from "../contexts/BookContext";
+import { BookOpen, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const Header: React.FC = () => {
-  const { state } = useBooks();
-
   return (
     <header className="bg-background border-b">
       <div className="container mx-auto px-4 py-4">
@@ -18,19 +16,31 @@ export const Header: React.FC = () => {
             </div>
           </div>
           
-          {/* Connection Status Indicator */}
+          {/* Navigation Buttons */}
+          <nav className="hidden md:flex items-center gap-6">
+            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+              Browse
+            </a>
+            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+              Categories
+            </a>
+            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+              New Releases
+            </a>
+            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+              Best Sellers
+            </a>
+          </nav>
+
           <div className="flex items-center gap-2">
-            {state.isUsingFallback ? (
-              <div className="flex items-center gap-2 text-amber-600 bg-amber-50 px-3 py-1 rounded-full text-sm">
-                <WifiOff className="h-4 w-4" />
-                <span>Offline Mode</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-1 rounded-full text-sm">
-                <Wifi className="h-4 w-4" />
-                <span>Connected</span>
-              </div>
-            )}
+            <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2">
+              <Star className="h-4 w-4" />
+              Favorites
+            </Button>
+
+            <Button size="sm">
+              Sign In
+            </Button>
           </div>
         </div>
       </div>
