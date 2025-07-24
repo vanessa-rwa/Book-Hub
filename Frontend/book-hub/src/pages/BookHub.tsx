@@ -19,11 +19,23 @@ const BookHubContent: React.FC = () => {
         return;
       }
 
+      // Instant fallback to mock data for immediate response
+      const mockBook = mockBooks.find(book => book.id === selectedBookId);
+      if (mockBook) {
+        console.log("⚡ Instant fallback to mock book data");
+        setSelectedBook(mockBook);
+        setLoading(false);
+      } else {
+        setSelectedBook(null);
+        setLoading(false);
+        return;
+      }
+
+      // Try API in background (non-blocking)
       setLoading(true);
       try {
-        console.log("🔗 Fetching book details for ID:", selectedBookId);
+        console.log("🔗 Fetching book details from API in background for ID:", selectedBookId);
         
-        // Try to fetch from API first
         const response = await fetch(
           `https://bookhub-backend-a0gfbea4h4g0hwak.southafricanorth-01.azurewebsites.net/api/books/${selectedBookId}/`
         );
@@ -32,29 +44,14 @@ const BookHubContent: React.FC = () => {
         
         if (response.ok) {
           const data = await response.json();
-          console.log("✅ Book detail response:", data);
+          console.log("✅ Book detail response from API:", data);
           setSelectedBook(data);
         } else {
-          // Fallback to mock data if API fails
-          const mockBook = mockBooks.find(book => book.id === selectedBookId);
-          if (mockBook) {
-            console.log("🔄 Falling back to mock book data");
-            setSelectedBook(mockBook);
-          } else {
-            throw new Error("Book not found in mock data");
-          }
+          console.log("⚠️ API returned error, keeping mock data");
         }
       } catch (error) {
-        console.error("❌ Error fetching book:", error);
-        
-        // Fallback to mock data if API fails
-        const mockBook = mockBooks.find(book => book.id === selectedBookId);
-        if (mockBook) {
-          console.log("🔄 Falling back to mock book data");
-          setSelectedBook(mockBook);
-        } else {
-          setSelectedBook(null);
-        }
+        console.error("❌ Error fetching book from API:", error);
+        console.log("🔄 Keeping mock data as fallback");
       } finally {
         setLoading(false);
       }
@@ -76,14 +73,12 @@ const BookHubContent: React.FC = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-
-
       {selectedBook ? (
         <main className="container mx-auto px-4 py-8">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <span className="ml-2 text-muted-foreground">Loading book details...</span>
+              <span className="ml-2 text-muted-foreground">Updating book details...</span>
             </div>
           ) : (
             <BookDetails book={selectedBook} onBack={handleBackToGrid} />

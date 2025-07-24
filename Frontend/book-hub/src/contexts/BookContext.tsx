@@ -45,6 +45,7 @@ export interface SearchState {
   currentPage: number;
   booksPerPage: number;
   isUsingFallback: boolean;
+  currentView: 'browse' | 'categories' | 'new-releases' | 'best-sellers';
 }
 
 interface BookContextType {
@@ -54,6 +55,7 @@ interface BookContextType {
   updateFilters: (filters: Partial<BookFilters>) => void;
   clearFilters: () => void;
   setCurrentPage: (page: number) => void;
+  setCurrentView: (view: 'browse' | 'categories' | 'new-releases' | 'best-sellers') => void;
 }
 
 type BookAction =
@@ -63,7 +65,8 @@ type BookAction =
   | { type: "UPDATE_FILTERS"; payload: Partial<BookFilters> }
   | { type: "CLEAR_FILTERS" }
   | { type: "SET_CURRENT_PAGE"; payload: number }
-  | { type: "SET_FALLBACK"; payload: boolean };
+  | { type: "SET_FALLBACK"; payload: boolean }
+  | { type: "SET_CURRENT_VIEW"; payload: 'browse' | 'categories' | 'new-releases' | 'best-sellers' };
 
 const initialFilters: BookFilters = {
   genre: "All Genres",
@@ -83,7 +86,8 @@ const initialState: SearchState = {
   totalResults: 0,
   currentPage: 1,
   booksPerPage: 8,
-  isUsingFallback: false,
+  isUsingFallback: true, // Start with fallback for instant response
+  currentView: 'browse',
 };
 
 const BookContext = createContext<BookContextType | undefined>(undefined);
@@ -117,6 +121,8 @@ function bookReducer(state: SearchState, action: BookAction): SearchState {
       return { ...state, currentPage: action.payload };
     case "SET_FALLBACK":
       return { ...state, isUsingFallback: action.payload };
+    case "SET_CURRENT_VIEW":
+      return { ...state, currentView: action.payload };
     default:
       return state;
   }
@@ -184,11 +190,34 @@ async function fetchBooksFromApi(
   }
 }
 
-// Fallback function using mock data
-function filterMockBooks(query: string, filters: BookFilters): Book[] {
-  console.log("🔄 Using mock data fallback");
+// Enhanced fallback function using mock data with view-specific filtering
+function filterMockBooks(query: string, filters: BookFilters, view: string): Book[] {
+  console.log("🔄 Using instant mock data fallback for view:", view);
   
   let filteredBooks = [...mockBooks];
+
+  // Apply view-specific filtering
+  switch (view) {
+    case 'categories':
+      // Show books grouped by genre (for now, just show all with genre filter)
+      break;
+    case 'new-releases':
+      // Show books published in the last 2 years
+      const twoYearsAgo = new Date();
+      twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+      filteredBooks = filteredBooks.filter(book => 
+        new Date(book.publication_date) >= twoYearsAgo
+      );
+      break;
+    case 'best-sellers':
+      // Show books with rating >= 4.0
+      filteredBooks = filteredBooks.filter(book => book.rating >= 4.0);
+      break;
+    case 'browse':
+    default:
+      // Show all books
+      break;
+  }
 
   // Apply search query
   if (query) {
@@ -270,32 +299,32 @@ export const BookProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [state, dispatch] = useReducer(bookReducer, initialState);
 
-  const loadBooks = async (query: string, filters: BookFilters) => {
+  const loadBooks = async (query: string, filters: BookFilters, view: string) => {
+    // Start with instant fallback for immediate response
+    const instantBooks = filterMockBooks(query, filters, view);
+    dispatch({ type: "SET_BOOKS", payload: instantBooks });
+    dispatch({ type: "SET_FALLBACK", payload: true });
+    
+    // Then try API in background (non-blocking)
     dispatch({ type: "SET_LOADING", payload: true });
-    dispatch({ type: "SET_FALLBACK", payload: false });
     
     try {
-      console.log("🚀 Attempting to fetch books from API...");
+      console.log("🚀 Attempting to fetch books from API in background...");
       const books = await fetchBooksFromApi(query, filters);
       console.log("✅ Successfully fetched books from API:", books.length);
       dispatch({ type: "SET_BOOKS", payload: books });
+      dispatch({ type: "SET_FALLBACK", payload: false });
     } catch (error) {
-      console.error("❌ API failed, using fallback data:", error);
-      
-      // Use mock data as fallback
-      const fallbackBooks = filterMockBooks(query, filters);
-      console.log("🔄 Using fallback books:", fallbackBooks.length);
-      
-      dispatch({ type: "SET_BOOKS", payload: fallbackBooks });
-      dispatch({ type: "SET_FALLBACK", payload: true });
+      console.error("❌ API failed, keeping fallback data:", error);
+      // Keep the fallback data, no need to update
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
   useEffect(() => {
-    loadBooks(state.query, state.filters);
-  }, [state.query, state.filters]);
+    loadBooks(state.query, state.filters, state.currentView);
+  }, [state.query, state.filters, state.currentView]);
 
   const searchBooks = (query: string) => {
     dispatch({ type: "SET_SEARCH_QUERY", payload: query });
@@ -313,6 +342,10 @@ export const BookProvider: React.FC<{ children: ReactNode }> = ({
     dispatch({ type: "SET_CURRENT_PAGE", payload: page });
   };
 
+  const setCurrentView = (view: 'browse' | 'categories' | 'new-releases' | 'best-sellers') => {
+    dispatch({ type: "SET_CURRENT_VIEW", payload: view });
+  };
+
   return (
     <BookContext.Provider
       value={{
@@ -322,6 +355,7 @@ export const BookProvider: React.FC<{ children: ReactNode }> = ({
         updateFilters,
         clearFilters,
         setCurrentPage,
+        setCurrentView,
       }}
     >
       {children}
