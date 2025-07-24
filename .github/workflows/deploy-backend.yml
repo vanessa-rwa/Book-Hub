@@ -1,41 +1,49 @@
-name: Deploy Backend to Azure
+name: Deploy Backend to Azure App Service
 
 on:
   push:
     branches: [ main ]
-    paths:
+    paths: 
       - 'Backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Python
+    - name: 🔄 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
-    - name: Install dependencies
+        
+    - name: 📦 Install dependencies
       run: |
         cd Backend/book_hub
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
-    
-    - name: Deploy to Azure Web App
+        
+    - name: 🔧 Run Django setup
+      run: |
+        cd Backend/book_hub
+        python manage.py collectstatic --noinput
+      env:
+        DJANGO_SETTINGS_MODULE: bookhub.production_settings
+        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+        
+    - name: 🚀 Deploy to Azure App Service
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'bookhub-backend-a0gfbea4h4g0hwak'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ./Backend/book_hub
-    
-    - name: Setup Database
-      run: |
-        # Wait for deployment to complete
-        sleep 30
+        package: './Backend/book_hub'
         
-        # Run database setup via Azure CLI
-        az webapp ssh --name bookhub-backend-a0gfbea4h4g0hwak --resource-group bookhub-rg --command "cd site/wwwroot && python3 manage.py migrate && python3 manage.py populate_books"
-      env:
-        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }} 
+    - name: 🔧 Run post-deployment setup
+      run: |
+        echo "Deployment completed! Database migrations will run automatically on startup." 
