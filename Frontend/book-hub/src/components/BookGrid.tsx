@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface BookGridProps {
-  onBookSelect: (bookId: string) => void;
+  onBookSelect: (bookId: number) => void;
 }
 
 export const BookGrid: React.FC<BookGridProps> = ({ onBookSelect }) => {

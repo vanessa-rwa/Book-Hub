@@ -5,13 +5,25 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
+import { mockBooks } from "../data/mockBooks";
 
 export interface Book {
-  id: string;
+  id: number;
   title: string;
   author: string;
   cover_image: string;
-  // add other fields as needed
+  genre: string;
+  rating: number;
+  publication_date: string;
+  description: string;
+  pages: number;
+  isbn: string;
+  language: string;
+  publisher: string;
+  price: number;
+  in_stock: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface BookFilters {
@@ -32,6 +44,7 @@ export interface SearchState {
   totalResults: number;
   currentPage: number;
   booksPerPage: number;
+  isUsingFallback: boolean;
 }
 
 interface BookContextType {
@@ -49,7 +62,8 @@ type BookAction =
   | { type: "SET_BOOKS"; payload: Book[] }
   | { type: "UPDATE_FILTERS"; payload: Partial<BookFilters> }
   | { type: "CLEAR_FILTERS" }
-  | { type: "SET_CURRENT_PAGE"; payload: number };
+  | { type: "SET_CURRENT_PAGE"; payload: number }
+  | { type: "SET_FALLBACK"; payload: boolean };
 
 const initialFilters: BookFilters = {
   genre: "All Genres",
@@ -69,6 +83,7 @@ const initialState: SearchState = {
   totalResults: 0,
   currentPage: 1,
   booksPerPage: 8,
+  isUsingFallback: false,
 };
 
 const BookContext = createContext<BookContextType | undefined>(undefined);
@@ -100,24 +115,28 @@ function bookReducer(state: SearchState, action: BookAction): SearchState {
       };
     case "SET_CURRENT_PAGE":
       return { ...state, currentPage: action.payload };
+    case "SET_FALLBACK":
+      return { ...state, isUsingFallback: action.payload };
     default:
       return state;
   }
 }
 
-const API_URL = "http://127.0.0.1:8000/api/books/";
+const API_URL = "https://bookhub-backend-a0gfbea4h4g0hwak.southafricanorth-01.azurewebsites.net/api/books/";
 
+// Enhanced API fetch with better error handling
 async function fetchBooksFromApi(
   query: string,
   filters: BookFilters
 ): Promise<Book[]> {
+  console.log("🔗 Fetching from API:", API_URL);
+  
   const params = new URLSearchParams();
 
   if (query) params.append("search", query);
   if (filters.genre && filters.genre !== "All Genres") {
     params.append("genre", filters.genre);
   }
-  // Use != null to allow 0 value for minRating and maxRating
   if (filters.minRating != null) {
     params.append("min_rating", filters.minRating.toString());
   }
@@ -126,7 +145,6 @@ async function fetchBooksFromApi(
   }
   if (filters.author) params.append("author", filters.author);
 
-  // Check yearRange properly
   if (
     filters.yearRange &&
     filters.yearRange.start != null &&
@@ -139,14 +157,112 @@ async function fetchBooksFromApi(
   params.append("sort_by", filters.sortBy);
   params.append("sort_order", filters.sortOrder);
 
-  const response = await fetch(`${API_URL}?${params.toString()}`);
+  const fullUrl = `${API_URL}?${params.toString()}`;
+  console.log("📡 Full API URL:", fullUrl);
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch books from API");
+  try {
+    const response = await fetch(fullUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    });
+
+    console.log("📊 Response status:", response.status);
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log("✅ API Response:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ API Error:", error);
+    throw error;
+  }
+}
+
+// Fallback function using mock data
+function filterMockBooks(query: string, filters: BookFilters): Book[] {
+  console.log("🔄 Using mock data fallback");
+  
+  let filteredBooks = [...mockBooks];
+
+  // Apply search query
+  if (query) {
+    const searchLower = query.toLowerCase();
+    filteredBooks = filteredBooks.filter(
+      book =>
+        book.title.toLowerCase().includes(searchLower) ||
+        book.author.toLowerCase().includes(searchLower) ||
+        book.description.toLowerCase().includes(searchLower)
+    );
   }
 
-  const data = await response.json();
-  return data;
+  // Apply genre filter
+  if (filters.genre && filters.genre !== "All Genres") {
+    filteredBooks = filteredBooks.filter(book => book.genre === filters.genre);
+  }
+
+  // Apply rating filter
+  filteredBooks = filteredBooks.filter(
+    book => book.rating >= filters.minRating && book.rating <= filters.maxRating
+  );
+
+  // Apply author filter
+  if (filters.author) {
+    const authorLower = filters.author.toLowerCase();
+    filteredBooks = filteredBooks.filter(book =>
+      book.author.toLowerCase().includes(authorLower)
+    );
+  }
+
+  // Apply year range filter
+  filteredBooks = filteredBooks.filter(book => {
+    const year = new Date(book.publication_date).getFullYear();
+    return year >= filters.yearRange.start && year <= filters.yearRange.end;
+  });
+
+  // Apply sorting
+  filteredBooks.sort((a, b) => {
+    let aValue: any, bValue: any;
+    
+    switch (filters.sortBy) {
+      case "title":
+        aValue = a.title;
+        bValue = b.title;
+        break;
+      case "author":
+        aValue = a.author;
+        bValue = b.author;
+        break;
+      case "rating":
+        aValue = a.rating;
+        bValue = b.rating;
+        break;
+      case "publicationDate":
+        aValue = new Date(a.publication_date);
+        bValue = new Date(b.publication_date);
+        break;
+      case "price":
+        aValue = a.price;
+        bValue = b.price;
+        break;
+      default:
+        aValue = a.title;
+        bValue = b.title;
+    }
+
+    if (filters.sortOrder === "desc") {
+      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+    } else {
+      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+    }
+  });
+
+  return filteredBooks;
 }
 
 export const BookProvider: React.FC<{ children: ReactNode }> = ({
@@ -156,13 +272,22 @@ export const BookProvider: React.FC<{ children: ReactNode }> = ({
 
   const loadBooks = async (query: string, filters: BookFilters) => {
     dispatch({ type: "SET_LOADING", payload: true });
+    dispatch({ type: "SET_FALLBACK", payload: false });
+    
     try {
+      console.log("🚀 Attempting to fetch books from API...");
       const books = await fetchBooksFromApi(query, filters);
-      console.log("Fetched books:", books);
+      console.log("✅ Successfully fetched books from API:", books.length);
       dispatch({ type: "SET_BOOKS", payload: books });
     } catch (error) {
-      console.error("Error loading books:", error);
-      dispatch({ type: "SET_BOOKS", payload: [] });
+      console.error("❌ API failed, using fallback data:", error);
+      
+      // Use mock data as fallback
+      const fallbackBooks = filterMockBooks(query, filters);
+      console.log("🔄 Using fallback books:", fallbackBooks.length);
+      
+      dispatch({ type: "SET_BOOKS", payload: fallbackBooks });
+      dispatch({ type: "SET_FALLBACK", payload: true });
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }

@@ -1,52 +1,36 @@
 
-import React from 'react';
-import { BookOpen, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { BookOpen, Wifi, WifiOff } from "lucide-react";
+import { useBooks } from "../contexts/BookContext";
 
 export const Header: React.FC = () => {
+  const { state } = useBooks();
+
   return (
-    <header className="bg-white/95 backdrop-blur-sm border-b sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-  
-          <div className="flex items-center gap-2">
-            <div className="bg-primary rounded-lg p-2">
-              <BookOpen className="h-6 w-6 text-primary-foreground" />
-            </div>
+    <header className="bg-background border-b">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <BookOpen className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-xl font-bold">Book Hub</h1>
-              <p className="text-xs text-muted-foreground">Discover Amazing Books</p>
+              <h1 className="text-2xl font-bold">BookHub</h1>
+              <p className="text-sm text-muted-foreground">Discover Your Next Read</p>
             </div>
           </div>
-
-    
-          <nav className="hidden md:flex items-center gap-6">
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-              Browse
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-              Categories
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-              New Releases
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-              Best Sellers
-            </a>
-          </nav>
-
+          
+          {/* Connection Status Indicator */}
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2">
-              <Star className="h-4 w-4" />
-              Favorites
-            </Button>
-  
-            <Button size="sm">
-              Sign In
-            </Button>
-
-            
-
+            {state.isUsingFallback ? (
+              <div className="flex items-center gap-2 text-amber-600 bg-amber-50 px-3 py-1 rounded-full text-sm">
+                <WifiOff className="h-4 w-4" />
+                <span>Offline Mode</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-1 rounded-full text-sm">
+                <Wifi className="h-4 w-4" />
+                <span>Connected</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
