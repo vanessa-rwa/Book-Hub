@@ -1,68 +1,77 @@
-# 🔧 GitHub Secrets Setup Guide
+# 🔐 GitHub Secrets Setup Guide
 
-## 🚨 **Critical: Add These Secrets to Fix Deployment Issues**
+## 🚨 **CRITICAL: Fix Publish Profile Issue**
 
-Go to: https://github.com/vanessa-rwa/Book-Hub/settings/secrets/actions
+The deployment is failing because of an invalid publish profile. Follow these steps to fix it:
 
-### **Step 1: Access GitHub Secrets**
-1. Go to your repository: https://github.com/vanessa-rwa/Book-Hub
-2. Click **"Settings"** tab
-3. Click **"Secrets and variables"** in left sidebar
-4. Click **"Actions"**
+## 📋 **Step 1: Get Fresh Publish Profile**
 
-### **Step 2: Add These Secrets**
+1. **Go to Azure Portal** → Your App Service (`bookhub-backend-a0gfbea4h4g0hwak`)
+2. **Click "Get publish profile"** (in the Overview section)
+3. **Download the file** (it will be named something like `bookhub-backend-a0gfbea4h4g0hwak.PublishSettings`)
+4. **Open the file** in a text editor
+5. **Copy the ENTIRE content** (it's XML format)
 
-#### **1. AZURE_WEBAPP_NAME**
-- **Name**: `AZURE_WEBAPP_NAME`
-- **Value**: `bookhub-backend`
+## 📋 **Step 2: Update GitHub Secrets**
 
-#### **2. AZURE_WEBAPP_PUBLISH_PROFILE**
+1. **Go to your GitHub repository**
+2. **Click "Settings"** → **"Secrets and variables"** → **"Actions"**
+3. **Update these secrets:**
+
+### 🔑 **AZURE_WEBAPP_PUBLISH_PROFILE**
 - **Name**: `AZURE_WEBAPP_PUBLISH_PROFILE`
-- **Value**: [Download from Azure Portal → App Service → "Download publish profile"]
+- **Value**: Paste the ENTIRE content from the publish profile file
+- **Type**: Secret
 
-#### **3. DJANGO_SECRET_KEY**
+### 🔑 **DJANGO_SECRET_KEY**
 - **Name**: `DJANGO_SECRET_KEY`
 - **Value**: `djangobookhub2024secretkeyforproductiondeployment`
+- **Type**: Secret
 
-#### **4. VITE_API_URL**
-- **Name**: `VITE_API_URL`
-- **Value**: `https://bookhub-backend.azurewebsites.net`
+### 🔑 **DATABASE_URL**
+- **Name**: `DATABASE_URL`
+- **Value**: `postgresql://bookhub_admin:MukeJacke2024!Secure@bookhub-db-server.postgres.database.azure.com:5432/bookhub_db`
+- **Type**: Secret
 
-#### **5. AZURE_STATIC_WEB_APPS_API_TOKEN_YELLOW_PEBBLE_0A3953C03**
-- **Name**: `AZURE_STATIC_WEB_APPS_API_TOKEN_YELLOW_PEBBLE_0A3953C03`
-- **Value**: [Get from Azure Static Web App → Configuration → Management API token]
+### 🔑 **FRONTEND_URL**
+- **Name**: `FRONTEND_URL`
+- **Value**: `https://yellow-pebble-0a3953c03.1.azurestaticapps.net`
+- **Type**: Secret
 
-## 🔍 **How to Get Missing Values**
+## 📋 **Step 3: Verify Secrets**
 
-### **For AZURE_WEBAPP_PUBLISH_PROFILE:**
-1. Go to Azure Portal
-2. Find your App Service: `bookhub-backend`
-3. Click **"Download publish profile"**
-4. Open the downloaded file in Notepad
-5. Copy the entire content
+After setting up all secrets, go to:
+- **GitHub Actions** → **"Deploy Backend to Azure App Service"**
+- **Click "Run workflow"** → **"Run workflow"**
 
-### **For AZURE_STATIC_WEB_APPS_API_TOKEN_YELLOW_PEBBLE_0A3953C03:**
-1. Go to Azure Portal
-2. Find your Static Web App: `bookhub-frontend`
-3. Go to **"Configuration"**
-4. Click **"Management API token"**
-5. Copy the token
+## 🔍 **Troubleshooting**
 
-## ✅ **After Adding Secrets**
+### ❌ **"Publish profile is invalid" Error**
+- **Solution**: Download a fresh publish profile from Azure Portal
+- **Make sure**: You're copying the ENTIRE XML content, not just part of it
 
-1. **Commit the changes** to trigger a new deployment
-2. **Check GitHub Actions** for successful build
-3. **Monitor the deployment** in the Actions tab
+### ❌ **"App name not found" Error**
+- **Solution**: Verify the app name in the workflow matches your Azure App Service name exactly
 
-## 🎯 **Expected Results**
+### ❌ **"Permission denied" Error**
+- **Solution**: Make sure the publish profile is for the correct App Service
 
-- ✅ Frontend builds without PostCSS errors
-- ✅ Backend deploys with proper Azure credentials
-- ✅ Static Web Apps deploys to correct location
-- ✅ Environment variables are properly set
+## ✅ **Success Indicators**
 
-## 🔄 **Workflow Separation**
+When the deployment succeeds, you should see:
+- ✅ **"Deploy to Azure App Service"** step completes
+- ✅ **"Run post-deployment setup"** step shows the backend URL
+- ✅ **No red error messages** in the workflow
 
-- **Frontend**: Handled by `azure-static-web-apps-yellow-pebble-0a3953c03.yml` (auto-generated)
-- **Backend**: Handled by `azure-deployment-backend-only.yml` (custom)
-- **Both workflows** will run on push to main branch 
+## 🚀 **After Successful Deployment**
+
+1. **Test the backend**: `https://bookhub-backend-a0gfbea4h4g0hwak.southafricanorth-01.azurewebsites.net/`
+2. **Test health check**: `https://bookhub-backend-a0gfbea4h4g0hwak.southafricanorth-01.azurewebsites.net/api/health/`
+3. **Test books API**: `https://bookhub-backend-a0gfbea4h4g0hwak.southafricanorth-01.azurewebsites.net/api/books/`
+
+## 📞 **Need Help?**
+
+If you're still having issues:
+1. **Check the workflow logs** for specific error messages
+2. **Verify all secrets are set correctly**
+3. **Make sure the App Service name matches exactly** 

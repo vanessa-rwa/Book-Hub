@@ -1,0 +1,5 @@
+[33mea2c0d5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Enhanced database automation - production ready
+[33m645f36e[m  Production-ready deployment: No SSH required
+[33m004052a[m Add automatic database setup and GitHub Actions workflow
+[33m2e42810[m Add or update the Azure App Service build and deployment workflow config
+[33m6401fa1[m Fix backend 404 error and frontend API connection - Updated production settings with correct Azure URLs - Fixed CORS configuration for frontend - Updated frontend API service to use Azure backend - Added database population command with sample books - Created comprehensive deployment guide

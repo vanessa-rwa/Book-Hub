@@ -38,7 +38,7 @@ jobs:
         FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
         
     - name: 🚀 Deploy to Azure App Service
-      uses: azure/webapps-deploy@v2
+      uses: azure/webapps-deploy@v3
       with:
         app-name: 'bookhub-backend-a0gfbea4h4g0hwak'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
@@ -46,4 +46,6 @@ jobs:
         
     - name: 🔧 Run post-deployment setup
       run: |
-        echo "Deployment completed! Database migrations will run automatically on startup." 
+        echo "Deployment completed! Database migrations will run automatically on startup."
+        echo "Backend URL: https://bookhub-backend-a0gfbea4h4g0hwak.southafricanorth-01.azurewebsites.net"
+        echo "Health Check: https://bookhub-backend-a0gfbea4h4g0hwak.southafricanorth-01.azurewebsites.net/api/health/" 
