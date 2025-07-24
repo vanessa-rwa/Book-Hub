@@ -195,27 +195,34 @@ function filterMockBooks(query: string, filters: BookFilters, view: string): Boo
   console.log("🔄 Using instant mock data fallback for view:", view);
   
   let filteredBooks = [...mockBooks];
+  console.log("📚 Total books before filtering:", filteredBooks.length);
 
   // Apply view-specific filtering
   switch (view) {
     case 'categories':
       // Show books grouped by genre (for now, just show all with genre filter)
+      console.log("📂 Categories view: showing all books");
       break;
     case 'new-releases':
       // Show books published in the last 2 years
       const twoYearsAgo = new Date();
       twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+      console.log("📅 Filtering for books published after:", twoYearsAgo.toISOString().split('T')[0]);
       filteredBooks = filteredBooks.filter(book => 
         new Date(book.publication_date) >= twoYearsAgo
       );
+      console.log("🆕 New releases found:", filteredBooks.length);
       break;
     case 'best-sellers':
       // Show books with rating >= 4.0
+      console.log("⭐ Filtering for books with rating >= 4.0");
       filteredBooks = filteredBooks.filter(book => book.rating >= 4.0);
+      console.log("🏆 Best sellers found:", filteredBooks.length);
       break;
     case 'browse':
     default:
       // Show all books
+      console.log("📖 Browse view: showing all books");
       break;
   }
 
@@ -343,6 +350,7 @@ export const BookProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const setCurrentView = (view: 'browse' | 'categories' | 'new-releases' | 'best-sellers') => {
+    console.log("🎯 Setting current view to:", view);
     dispatch({ type: "SET_CURRENT_VIEW", payload: view });
   };
 

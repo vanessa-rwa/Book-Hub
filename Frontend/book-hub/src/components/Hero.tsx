@@ -13,8 +13,8 @@ export const Hero: React.FC = () => {
           title: 'Browse by Categories',
           subtitle: 'Explore books organized by genre. Find your favorite categories and discover new ones.',
           stats: [
-            { value: '12+', label: 'Categories' },
-            { value: '8', label: 'Genres Available' },
+            { value: '12', label: 'Books Available' },
+            { value: '8', label: 'Genres' },
             { value: '100%', label: 'Organized' }
           ]
         };
@@ -23,8 +23,8 @@ export const Hero: React.FC = () => {
           title: 'New Releases',
           subtitle: 'Discover the latest books published in the last 2 years. Stay up to date with fresh content.',
           stats: [
-            { value: '3', label: 'New Books' },
-            { value: '2023-2024', label: 'Publication Years' },
+            { value: '4', label: 'New Books' },
+            { value: '2020-2022', label: 'Publication Years' },
             { value: 'Fresh', label: 'Content' }
           ]
         };
@@ -33,7 +33,7 @@ export const Hero: React.FC = () => {
           title: 'Best Sellers',
           subtitle: 'Top-rated books with 4+ star ratings. These are the most loved and recommended reads.',
           stats: [
-            { value: '5', label: 'Top Books' },
+            { value: '11', label: 'Top Books' },
             { value: '4.0+', label: 'Star Rating' },
             { value: 'Highly', label: 'Rated' }
           ]
@@ -44,9 +44,9 @@ export const Hero: React.FC = () => {
           title: 'Discover Your Next Great Read',
           subtitle: 'Explore thousands of books across every genre. Find ratings, reviews, and detailed information to help you choose your perfect book.',
           stats: [
-            { value: '8', label: 'Books Available' },
+            { value: '12', label: 'Books Available' },
             { value: '8', label: 'Genres' },
-            { value: '4.8', label: 'Average Rating' }
+            { value: '4.4', label: 'Average Rating' }
           ]
         };
     }
