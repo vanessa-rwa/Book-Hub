@@ -4,7 +4,41 @@ from rest_framework import status
 from .models import Book
 from .serializers import BookSerializer
 from django.http import Http404
+from django.db import connection
 from django.db.models import Q
+
+class HealthCheck(APIView):
+    """
+    Health check endpoint to verify database and book population
+    """
+    def get(self, request):
+        try:
+            # Check database connection
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+            
+            # Check book count
+            book_count = Book.objects.count()
+            
+            # Get sample book titles
+            sample_books = list(Book.objects.values_list('title', flat=True)[:3])
+            
+            return Response({
+                "status": "healthy",
+                "database": "connected",
+                "books_count": book_count,
+                "sample_books": sample_books,
+                "message": f"✅ Book Hub is running with {book_count} books available",
+                "automated_setup": "success" if book_count > 0 else "no_books_found"
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "database": "connection_failed",
+                "error": str(e),
+                "message": "❌ Database connection or setup failed"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BookList(APIView):
     def get(self, request):
